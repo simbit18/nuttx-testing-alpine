@@ -62,14 +62,6 @@ jobs:
       - name: Extract sources
         run: tar zcf sources.tar.gz sources
         
-      - name: Restore Tools Cache
-        id: cache-tools
-        uses: actions/cache@v3
-        env:
-          cache-name: ${{ runner.os }}-cache-tools
-        with:
-          path: ./sources/tools
-          key: ${{ runner.os }}-tools-${{ hashFiles('./sources/nuttx/tools/ci/cibuild.sh') }}
           
       - name: Archive Source Bundle
         uses: actions/upload-artifact@v3
@@ -182,7 +174,16 @@ jobs:
 
      - name: Extract sources
        run: tar zxf sources.tar.gz
-        
+       
+     - name: Restore Tools Cache
+       id: cache-tools
+       uses: actions/cache@v3
+       env:
+          cache-name: ${{ runner.os }}-cache-tools
+       with:
+          path: ./sources/tools
+          key: ${{ runner.os }}-tools-${{ hashFiles('./sources/nuttx/tools/ci/cibuild.sh') }}
+          
      - name: Export NuttX Repo SHA
        run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
         
@@ -196,7 +197,7 @@ jobs:
           git config --global --add safe.directory /__w/nuttx-testing-alpine/nuttx-testing-alpine/sources/apps
           cd sources/nuttx/tools/ci
           ## ./cibuild.sh -l -i -c -A -R testlist/${{matrix.boards}}.dat
-          ./cibuild.sh -l -d -i -A -C -R testlist/${{matrix.boards}}.dat
+          ./cibuild.sh -l -i -A -C -R testlist/${{matrix.boards}}.dat
 
 
      - uses: actions/upload-artifact@v3
