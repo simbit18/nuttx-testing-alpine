@@ -119,6 +119,13 @@ jobs:
          xz \
          zip
 
+     - name: Install and Upgrade ARM Compiler Packages
+       run :  |
+        apk --no-cache --update add \
+        gcc-arm-none-eabi \
+        newlib-arm-none-eabi \
+        g++-arm-none-eabi
+        
      - name: Install and Upgrade Packages for Nuttx 
        run:  |
          apk --no-cache --update add \
