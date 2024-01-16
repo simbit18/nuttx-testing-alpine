@@ -77,7 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        boards: [alp]
+        boards: [alp, alp-02, alp-03]
         # boards: [alp, alp-01]
     steps:
      - name: Install Build Tools
