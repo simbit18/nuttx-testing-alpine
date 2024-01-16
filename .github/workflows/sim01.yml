@@ -59,9 +59,18 @@ jobs:
           path: sources/apps
           fetch-depth: 1
 
-      - name: Tar sources
+      - name: Extract sources
         run: tar zcf sources.tar.gz sources
-
+        
+      - name: Restore Tools Cache
+        id: cache-tools
+        uses: actions/cache@v3
+        env:
+          cache-name: ${{ runner.os }}-cache-tools
+        with:
+          path: ./sources/tools
+          key: ${{ runner.os }}-tools-${{ hashFiles('./sources/nuttx/tools/ci/cibuild.sh') }}
+          
       - name: Archive Source Bundle
         uses: actions/upload-artifact@v3
         with:
