@@ -77,7 +77,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        boards: [alp, alp-01]
+        boards: [alp]
+        # boards: [alp, alp-01]
     steps:
      - name: Install Build Tools
        run:  |
@@ -173,8 +174,10 @@ jobs:
        run: |
           echo "::add-matcher::sources/nuttx/.github/gcc.json"
           export ARTIFACTDIR=`pwd`/buildartifacts
-          git config --global --add safe.directory /github/workspace/sources/nuttx
-          git config --global --add safe.directory /github/workspace/sources/apps
+          # git config --global --add safe.directory /github/workspace/sources/nuttx
+          # git config --global --add safe.directory /github/workspace/sources/apps
+          git config --global --add safe.directory /__w/nuttx-testing-alpine/nuttx-testing-alpine/sources/nuttx
+          git config --global --add safe.directory /__w/nuttx-testing-alpine/nuttx-testing-alpine/sources/apps
           cd sources/nuttx/tools/ci
           ## ./cibuild.sh -g -i -c -A -R testlist/${{matrix.boards}}.dat
           ./cibuild.sh -g -i -A -C -R testlist/${{matrix.boards}}.dat
