@@ -78,7 +78,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        boards: [alp, alp-02, alp-03]
+        boards: [alp-02]
+        # boards: [alp, alp-02, alp-03]
         # boards: [alp, alp-01]
     steps:
      - name: Install Build Tools
@@ -197,7 +198,7 @@ jobs:
           git config --global --add safe.directory /__w/nuttx-testing-alpine/nuttx-testing-alpine/sources/apps
           cd sources/nuttx/tools/ci
           ## ./cibuild.sh -l -i -c -A -R testlist/${{matrix.boards}}.dat
-          ./cibuild.sh -l -i -A -C -R testlist/${{matrix.boards}}.dat
+          ./cibuild.sh -l -d -i -A -C -R testlist/${{matrix.boards}}.dat
 
 
      - uses: actions/upload-artifact@v3
