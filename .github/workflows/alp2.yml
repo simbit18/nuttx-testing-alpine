@@ -1,0 +1,193 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+name: Build Alpine Alp2
+
+permissions:
+  contents: read
+on: 
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/alp2.yml'
+      
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Fetch-Source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine Target Branches
+        id: gittargets
+        shell: bash
+        run: |
+          OS_REF=""
+          APPS_REF=""
+
+          REF="refs/heads/simbit18-esptool"
+          # REF="refs/heads/master"
+          echo "Working with ref: $REF"
+
+      - name: Checkout nuttx repo
+        uses: actions/checkout@v4
+        with:
+          repository: simbit18/nuttx
+          ref: simbit18-esptool
+          # ref:  master
+          path: sources/nuttx
+          fetch-depth: 1
+      - name: Checkout nuttx repo tags
+        run: git -C sources/nuttx fetch --tags
+
+      - name: Checkout apps repo
+        uses: actions/checkout@v4
+        with:
+          repository: simbit18/nuttx-apps
+          ref: simbit18-esptool
+          # ref: master
+          path: sources/apps
+          fetch-depth: 1
+
+      - name: Extract sources
+        run: tar zcf sources.tar.gz sources
+        
+          
+      - name: Archive Source Bundle
+        uses: actions/upload-artifact@v3
+        with:
+          name: source-bundle
+          path: sources.tar.gz
+
+  alpine:
+    needs: Fetch-Source
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: alpine:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        boards: [msys2]
+        # boards: [alp, alp-02, alp-03]
+        # boards: [alp, alp-01]
+    steps:
+     - name: Install Build Tools
+       run:  |
+         apk --no-cache add \
+         bash \
+         coreutils \
+         findutils \
+         gawk \
+         git
+
+     - name: Install and Upgrade Base Packages
+       run:  |
+         apk --no-cache --update add \
+         bison \
+         flex \
+         gettext \
+         texinfo \
+         gperf \
+         automake \
+         libtool \
+         binutils-dev \
+         picocom \
+         u-boot-tools \
+         util-linux \
+         patch \
+         autoconf \
+         build-base \
+         bash \
+         bash-completion \
+         shadow \
+         git \
+         curl \
+         rsync \
+         nano \
+         tar \
+         gzip \
+         bzip2 \
+         xz \
+         zip
+        
+     - name: Install and Upgrade Packages for Nuttx 
+       run:  |
+         apk --no-cache --update add \
+         bsd-compat-headers \
+         zlib-dev \
+         ncurses-dev
+
+         ## WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager.
+         ## It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+         ##  ignore warning message
+         ##  Container -> ENV PIP_ROOT_USER_ACTION=ignore
+         ##  Action    -> pip install --root-user-action=ignore
+         ##  WARNING: The directory '/github/home/.cache/pip' or its parent directory is not owned or is not writable by the current user.
+         ##  The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+         ##  Container -> ENV PIP_NO_CACHE_DIR=false
+         ##  Action    -> pip3 install --no-cache-dir
+        
+    
+         ## Alpine 3.19.x Fix pip error: externally-managed-environment
+         ## https://github.com/alpinelinux/docker-alpine/issues/361  
+     - name: Create the virtual environment and Install Python 3 option
+       run:  |
+         python3 -m venv --system-site-packages /usr/local \
+         && pip3 install --root-user-action=ignore --no-cache-dir \
+            setuptools \
+            wheel \
+            pyelftools \
+            cxxfilt \
+            ninja \
+            kconfiglib
+          
+     - name: Download Source Artifact
+       uses: actions/download-artifact@v3
+       with:
+          name: source-bundle
+          path: .
+
+     - name: Extract sources
+       run: tar zxf sources.tar.gz
+       
+     - name: Restore Tools Cache
+       id: cache-tools
+       uses: actions/cache@v3
+       env:
+          cache-name: ${{ runner.os }}-cache-tools
+       with:
+          path: ./sources/tools
+          key: ${{ runner.os }}-tools-${{ hashFiles('./sources/nuttx/tools/ci/cibuild.sh') }}
+          
+     - name: Export NuttX Repo SHA
+       run: echo "nuttx_sha=`git -C sources/nuttx rev-parse HEAD`" >> $GITHUB_ENV
+        
+     - name: Run Builds
+       run: |
+          echo "::add-matcher::sources/nuttx/.github/gcc.json"
+          export ARTIFACTDIR=`pwd`/buildartifacts
+          # git config --global --add safe.directory /github/workspace/sources/nuttx
+          # git config --global --add safe.directory /github/workspace/sources/apps
+          git config --global --add safe.directory /__w/nuttx-testing-alpine/nuttx-testing-alpine/sources/nuttx
+          git config --global --add safe.directory /__w/nuttx-testing-alpine/nuttx-testing-alpine/sources/apps
+          cd sources/nuttx/tools/ci
+          ## ./cibuild.sh -l -i -c -A -R testlist/${{matrix.boards}}.dat
+          ./cibuild.sh -l -d -i -A -C -R testlist/${{matrix.boards}}.dat
+
+
+     - uses: actions/upload-artifact@v3
+       with:
+          name: alpine-builds
+          path: buildartifacts/
+       continue-on-error: true
