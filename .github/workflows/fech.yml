@@ -31,12 +31,8 @@ jobs:
     steps:
       - name: Install Build Tools
         run:  |
-         apk --no-cache add \
-         bash \
-         coreutils \
-         tar \
-         gawk \
-         git
+         apk --no-cache add git
+
       - name: Determine Target Branches
         id: gittargets
         shell: bash
