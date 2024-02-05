@@ -190,6 +190,7 @@ jobs:
           git config --global --add safe.directory /__w/nuttx-testing-alpine/nuttx-testing-alpine/sources/apps
           cd sources/nuttx/tools/ci
           ## ./cibuild.sh -l -i -c -A -R testlist/${{matrix.boards}}.dat
+          chmod 0755 /alpine.sh
           ./cibuild.sh -l -d -i -A -C -R testlist/${{matrix.boards}}.dat
 
 
