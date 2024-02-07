@@ -1,6 +1,6 @@
-## Build Mainline NuttX every day for Alpine Action Cmake sim:nsh
+## Build Bloady
 
-name: Daily Build of NuttX for Alpine Cmake sim:nsh
+name: Bloady
 
 permissions:
   contents: read
