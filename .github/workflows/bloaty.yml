@@ -3,7 +3,7 @@
 name: Bloady
 
 permissions:
-  contents: read
+  contents: write
 on: 
   workflow_dispatch:
   push:
