@@ -1,0 +1,45 @@
+## Build Mainline NuttX every day for Alpine Action Cmake sim:nsh
+
+name: Daily Build of NuttX for Alpine Cmake sim:nsh
+
+permissions:
+  contents: read
+on: 
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/bloaty.yml'
+
+jobs:
+  # Label of the container job
+  sim-nsh-job:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: alpine:latest
+
+    steps:
+
+    - name: Install Build Tools
+      run:  |
+        apk --no-cache --update add \
+        bash \
+        git \
+        build-base \
+        cmake \
+        zlib-dev \
+        libstdc++ \
+        libgcc
+
+    - name: Checkout Source Files
+      run:  |
+        mkdir bloaty
+        cd bloaty
+        mkdir pippo
+        git clone https://github.com/google/bloaty.git
+        cmake -B build
+        cmake --build build
+        cmake --build build --target install -DCMAKE_SYSTEM_PREFIX_PATH="pippo
+        ls -a /pippo
+
+    
