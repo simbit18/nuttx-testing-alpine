@@ -39,9 +39,9 @@ jobs:
         git clone https://github.com/google/bloaty.git
         cd bloaty
         pwd
-        cmake -B build -DCMAKE_SYSTEM_PREFIX_PATH=/bloaty/bloaty/pippo
+        cmake -B build -DCMAKE_PREFIX_PATH=D:\Temp\bloaty
         ## cmake --build build
         cmake --build build --target install
-        ls -a ../pippo
+        ls -a D:\Temp\bloaty
 
     
