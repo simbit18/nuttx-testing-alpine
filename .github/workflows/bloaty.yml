@@ -39,9 +39,10 @@ jobs:
         git clone https://github.com/google/bloaty.git
         cd bloaty
         pwd
-        cmake -B build -DCMAKE_INSTALL_PREFIX=/__w/nuttx-testing-alpine/nuttx-testing-alpine/bloaty/pippo
+        ## cmake -B build -DCMAKE_INSTALL_PREFIX=/__w/nuttx-testing-alpine/nuttx-testing-alpine/bloaty/pippo
+        cmake -B build -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/bloaty/pippo
         ## cmake --build build
         cmake --build build --target install
-        ls -a /__w/nuttx-testing-alpine/nuttx-testing-alpine/bloaty/pippo
+        ls -a $GITHUB_WORKSPACE/bloaty/pippo
 
     
