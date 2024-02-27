@@ -34,6 +34,7 @@ jobs:
     - name: Checkout Source Files
       run:  |
         mkdir rust
+        export PATH=$GITHUB_WORKSPACE/rust/cargo/bin::${PATH}
         export CARGO_HOME=$GITHUB_WORKSPACE/rust/cargo
         export RUSTUP_HOME=$GITHUB_WORKSPACE/rust/rustup
         # Install Rust target x86_64-unknown-linux-musl
