@@ -1,0 +1,47 @@
+## Build Rust
+
+name: Rust
+
+permissions:
+  contents: write
+on: 
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/rust.yml'
+
+jobs:
+  # Label of the container job
+  alpine-rust-job:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: alpine:latest
+
+    steps:
+    - name: Install Build Tools
+      run:  |
+        apk --no-cache --update add \
+        bash \
+        git \
+        build-base \
+        cmake \
+        zlib-dev \
+        libstdc++ \
+        libgcc
+
+    - name: Checkout Source Files
+      run:  |
+        mkdir rust
+        export CARGO_HOME=rust/cargo
+        export RUSTUP_HOME=rust/rustup
+        # Install Rust target x86_64-unknown-linux-musl
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y --default-host x86_64-unknown-linux-musl --no-modify-path
+        # Install targets supported from NuttX
+        $CARGO_HOME/bin/rustup target add thumbv6m-none-eabi
+        $CARGO_HOME/bin/rustup target add thumbv7m-none-eabi
+        rustc --version
+        cd rust
+        ls -a
+
+    
