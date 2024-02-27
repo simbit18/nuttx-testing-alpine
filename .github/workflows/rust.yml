@@ -34,15 +34,15 @@ jobs:
     - name: Checkout Source Files
       run:  |
         mkdir rust
-        export CARGO_HOME=rust/cargo
-        export RUSTUP_HOME=rust/rustup
+        export CARGO_HOME=$GITHUB_WORKSPACE/rust/cargo
+        export RUSTUP_HOME=$GITHUB_WORKSPACE/rust/rustup
         # Install Rust target x86_64-unknown-linux-musl
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s --no-modify-path -y
         # Install targets supported from NuttX
         $CARGO_HOME/bin/rustup target add thumbv6m-none-eabi
         $CARGO_HOME/bin/rustup target add thumbv7m-none-eabi
         rustc --version
-        cd rust
+        cd $GITHUB_WORKSPACE/rust
         ls -a
 
     
