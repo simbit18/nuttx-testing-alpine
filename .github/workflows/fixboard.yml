@@ -144,6 +144,9 @@ jobs:
         tools/configure.sh -l open1788:nsh
 
         kconfig-tweak --disable CONFIG_ARM_TOOLCHAIN_BUILDROOT
+        kconfig-tweak --disable CONFIG_ARM_TOOLCHAIN_BUILDROOT_OABI
+
+        kconfig-tweak --enable CONFIG_ARM_TOOLCHAIN_GNU_EABI
         
         ## Preserve the build config
         cp .config nuttx.config
