@@ -141,13 +141,13 @@ jobs:
         arm-none-eabi-c++ --version
 
         ## Configure the build
-        tools/configure.sh -l -d open1788:nsh
+        tools/configure.sh -l open1788:nsh
         	
         ## Preserve the build config
         cp .config nuttx.config
 
         ## Run the build
-        make
+        make V=1 -j4
 
         ## Show the size
         arm-none-eabi-size nuttx
