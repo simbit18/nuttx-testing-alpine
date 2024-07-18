@@ -1,6 +1,6 @@
 ## Build Mainline NuttX every day for Alpine Action Cmake arm
 
-name: Daily Build of NuttX for Alpine Cmake sim:nsh
+name: Daily Build of NuttX for Alpine Cmake ARM
 
 permissions:
   ## Allow publishing of GitHub Release
