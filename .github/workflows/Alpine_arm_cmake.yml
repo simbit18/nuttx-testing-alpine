@@ -177,5 +177,7 @@ jobs:
         generate_release_notes: false
         files: |
           nuttxspace/nuttx/build_sim/nuttx
+          nuttxspace/nuttx/build_sim/nuttx.bin
+          nuttxspace/nuttx/build_sim/nuttx.hex
           nuttxspace/nuttx/build_sim/nuttx.config
           nuttxspace/nuttx/build_sim/nuttx.manifest
