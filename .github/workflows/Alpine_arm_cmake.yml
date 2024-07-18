@@ -1,6 +1,6 @@
-## Build Mainline NuttX every day for Alpine Action Nucleo-F411re:nsh
+## Build Mainline NuttX every day for Alpine Action Cmake arm
 
-name: Daily Build of NuttX for Alpine Arm Cmake
+name: Daily Build of NuttX for Alpine Cmake sim:nsh
 
 permissions:
   ## Allow publishing of GitHub Release
@@ -10,11 +10,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - '.github/workflows/Alpine_arm_cmake.yml'
+      - '.github/workflows/Alpine_Cmake_nsh.yml'
 
 jobs:
   # Label of the container job
-  alpine-arm-cmake-job:
+  arm-nsh-job:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in
@@ -60,13 +60,6 @@ jobs:
         bzip2 \
         xz \
         zip
-        
-    - name: Install and Upgrade ARM Compiler Packages
-      run :  |
-        apk --no-cache --update add \
-        gcc-arm-none-eabi \
-        newlib-arm-none-eabi \
-        g++-arm-none-eabi
 
     - name: Install and Upgrade Packages for Nuttx 
       run:  |
@@ -79,11 +72,23 @@ jobs:
       run:  | 
         apk --no-cache --update add \
         cmake \
-        ninja-build \
         xxd \
         python3 \
         py3-pip
-
+        
+      ## Alpine 3.19.x Fix pip error: externally-managed-environment
+      ## https://github.com/alpinelinux/docker-alpine/issues/361  
+    - name: Create the virtual environment
+      run:  |
+        python3 -m venv --system-site-packages /usr/local \
+        && pip3 install --root-user-action=ignore --no-cache-dir \
+           setuptools \
+           wheel \
+           pyelftools \
+           cxxfilt \
+           ninja \
+           kconfiglib
+        
         ## WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager.
         ## It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
         ##  ignore warning message
@@ -93,12 +98,15 @@ jobs:
         ##  The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
         ##  Container -> ENV PIP_NO_CACHE_DIR=false
         ##  Action    -> pip3 install --no-cache-dir
-        
-    - name: Install Python 3 option
-      run:  |
-        pip3 install --break-system-packages --user --root-user-action=ignore --no-cache-dir \
-        pyelftools \
-        cxxfilt
+        ## only for Alpine 3.18.x
+    ## - name: Install Python 3 option
+    ##  run:  |
+    ##    pip3 install --root-user-action=ignore --no-cache-dir \
+    ##    setuptools \
+    ##    wheel \
+    ##    pyelftools \
+    ##    cxxfilt \
+    ##    kconfiglib
 
     - name: Install kconfig-frontends
       run:  |
@@ -126,10 +134,10 @@ jobs:
       run:  |
         mkdir nuttxspace
         cd nuttxspace
-        git clone --depth 1 https://github.com/apache/incubator-nuttx nuttx
-        git clone --depth 1 https://github.com/apache/incubator-nuttx-apps apps
-        ## git clone --single-branch --branch simbit18-alpine https://github.com/simbit18/nuttx.git nuttx
-        ## git clone --single-branch --branch simbit18-alpine https://github.com/simbit18/nuttx-apps.git apps
+        git clone https://github.com/apache/incubator-nuttx nuttx
+        git clone https://github.com/apache/incubator-nuttx-apps apps
+        ## git clone --depth 1 https://github.com/simbit18/nuttx.git nuttx
+        ## git clone --depth 1 https://github.com/simbit18/nuttx-apps.git apps
 
     - name: Build
       run: |
@@ -138,28 +146,16 @@ jobs:
         ls
 
         ## Show the GCC version
-        arm-none-eabi-gcc --version
-        arm-none-eabi-c++ --version
+        gcc -v
 
         ## Configure the build
-        #tools/configure.sh -l stm32f334-disco:powerled
-        cmake -B build -DBOARD_CONFIG=tm32f334-disco:powerled -GNinja	
+        cmake -B build_sim -DBOARD_CONFIG=stm32f334-disco:powerled -GNinja
+        	
         ## Preserve the build config
-         #cp .config nuttx.config
+        cp build_sim/.config build_sim/nuttx.config
 
         ## Run the build
-        # make
-        cmake --build build -t savedefconfig
-
-        ## Show the size
-        arm-none-eabi-size nuttx
-        
-        ## Dump the disassembly to nuttx.S
-        arm-none-eabi-objdump \
-          -t -S --demangle --line-numbers --wide \
-          nuttx \
-          >nuttx.S \
-          2>&1
+        cmake --build build_sim
 
     - name: Get Current Date
       id: date
@@ -168,14 +164,11 @@ jobs:
     - name: Publish the GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: alpine-stm32f334-disco-nsh-${{ steps.date.outputs.date }}
+        tag_name: alpine-cmake-sim-nsh-${{ steps.date.outputs.date }}
         draft: false
         prerelease: false
         generate_release_notes: false
         files: |
-          nuttxspace/nuttx/nuttx
-          nuttxspace/nuttx/nuttx.bin
-          nuttxspace/nuttx/nuttx.S
-          nuttxspace/nuttx/nuttx.hex
-          nuttxspace/nuttx/nuttx.config
-          nuttxspace/nuttx/nuttx.manifest
+          nuttxspace/nuttx/build_sim/nuttx
+          nuttxspace/nuttx/build_sim/nuttx.config
+          nuttxspace/nuttx/build_sim/nuttx.manifest
