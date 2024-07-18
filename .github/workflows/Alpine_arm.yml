@@ -79,6 +79,7 @@ jobs:
       run:  | 
         apk --no-cache --update add \
         cmake \
+        ninja-build \
         xxd \
         python3 \
         py3-pip
