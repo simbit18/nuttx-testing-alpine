@@ -67,6 +67,13 @@ jobs:
         bsd-compat-headers \
         zlib-dev \
         ncurses-dev
+        
+    - name: Install and Upgrade ARM Compiler Packages
+      run :  |
+        apk --no-cache --update add \
+        gcc-arm-none-eabi \
+        newlib-arm-none-eabi \
+        g++-arm-none-eabi
 
     - name: Install Development Tools Packages
       run:  | 
