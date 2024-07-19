@@ -170,7 +170,6 @@ jobs:
         cp build_sim/nuttx nuttxcmake/nuttx
         cp build_sim/nuttx.bin nuttxcmake/nuttx.bin
         cp build_sim/nuttx.hex nuttxcmake/nuttx.hex
-        cp build_sim/System.map nuttxcmake/System.map
         cp build_sim/nuttx.manifest nuttxcmake/nuttx.manifest
         zip -r nuttxcmake.zip nuttxcmake
 
