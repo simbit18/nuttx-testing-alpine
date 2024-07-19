@@ -158,19 +158,21 @@ jobs:
 
         ## Configure the build
         cmake -B build_sim -DBOARD_CONFIG=stm32f334-disco:powerled -GNinja
-        	
+
+        mkdir nuttxcmake
+        
         ## Preserve the build config
         cp build_sim/.config build_sim/nuttx.config
 
         ## Run the build
         cmake --build build_sim
 
-        cp build_sim/nuttx nuttxmsys2/nuttx
-        cp build_sim/nuttx.bin nuttxmsys2/nuttx.bin
-        cp build_sim/nuttx.hex nuttxmsys2/nuttx.hex
-        cp build_sim/System.map nuttxmsys2/System.map
-        cp build_sim/nuttx.manifest nuttxmsys2/nuttx.manifest
-        zip -r nuttxmsys2.zip nuttxmsys2
+        cp build_sim/nuttx nuttxcmake/nuttx
+        cp build_sim/nuttx.bin nuttxcmake/nuttx.bin
+        cp build_sim/nuttx.hex nuttxcmake/nuttx.hex
+        cp build_sim/System.map nuttxcmake/System.map
+        cp build_sim/nuttx.manifest nuttxcmake/nuttx.manifest
+        zip -r nuttxcmake.zip nuttxcmake
 
     - name: Get Current Date
       id: date
@@ -184,4 +186,4 @@ jobs:
         prerelease: false
         generate_release_notes: false
         files: |
-          nuttxspace/nuttx/nuttxmsys2.zip
+          nuttxspace/nuttx/nuttxcmake.zip
