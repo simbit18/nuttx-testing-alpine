@@ -1,0 +1,132 @@
+name: Nuttx-master sim MSYS2 cmake
+
+permissions:
+  ## Allow publishing of GitHub Release
+  contents: write
+on: 
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/sim_base.yml'
+
+jobs:
+  nuttx-sim-_cmake-msys2:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          update: false
+          install: >-
+            base-devel
+            gcc
+            gperf
+            git
+            python3
+            ncurses-devel
+            unzip
+            zip
+            tio
+            zlib-devel
+            gmp-devel
+            mpfr-devel
+            mpc-devel
+            isl-devel
+            cmake
+            ninja
+            python-pip 
+            vim
+            curl
+        
+      - name: pip3 install
+        run: |
+          echo 'pip3 install'
+          uname
+          pip3 install --root-user-action=ignore --no-cache-dir pyelftools cxxfilt kconfiglib
+
+      - name: Install kconfig-frontends
+        run: |
+          echo 'Install kconfig-frontends'
+          curl -L https://bitbucket.org/nuttx/tools/get/master.tar.gz -o nuttx-tools.tar.gz
+          mkdir nuttx-tools
+          tar xvzf nuttx-tools.tar.gz --strip-components=1 -C nuttx-tools
+          cd nuttx-tools/kconfig-frontends
+          ./configure --prefix=/opt/nuttxenv/usr --enable-mconf --disable-gconf --disable-qconf --disable-shared --disable-nconf
+          make install
+          
+      - name: Install genromfs
+        run: |
+          echo 'Install genromfs'
+          cd nuttx-tools
+          tar xzf genromfs-0.5.2.tar.gz
+          cd genromfs-0.5.2
+          make install PREFIX=/opt/nuttxenv
+
+      - name: Copy NXTOOL GENROMFS and clean source files
+        run: |
+          echo 'Copy NXTOOL GENROMFS and clean source files'
+          cp /opt/nuttxenv/usr/bin/kconfig-conf.exe /usr/bin
+          cp /opt/nuttxenv/usr/bin/kconfig-mconf.exe /usr/bin
+          cp /opt/nuttxenv/usr/bin/kconfig-tweak /usr/bin
+          cp /opt/nuttxenv/usr/bin/genromfs.exe /usr/bin
+          rm -rf nuttx-tools genromfs-0.5.2
+          ls -a
+          
+      - name: Checkout Source Files
+        run: |
+          echo 'Checkout Source Files'
+          mkdir nuttxspace
+          ls -a
+          cd nuttxspace
+          git clone --depth 1 https://github.com/apache/incubator-nuttx nuttx
+          git clone --depth 1 https://github.com/apache/incubator-nuttx-apps apps
+          ls -a
+          cd nuttx
+          ls -a
+
+      - name: Build
+        run: |
+          echo 'Build'
+
+          ## Move to nuttx
+          cd nuttxspace/nuttx
+          ls -a
+
+          ## Show the GCC version
+          gcc -v
+
+          ## Configure the build
+          cmake -B build_sim -DBOARD_CONFIG=sim:nsh -GNinja
+          
+          mkdir nuttxmsys2
+          
+          ## Preserve the build config
+          cp build_sim/.config build_sim/nuttx.config
+          
+          cmake --build build_sim
+          
+          ls -a
+          cp build_sim/nuttx.exe nuttxmsys2/nuttx.exe
+          cp build_sim/System.map nuttxmsys2/System.map
+          cp /usr/bin/msys-2.0.dll nuttxmsys2/msys-2.0.dll
+          cp /usr/bin/msys-z.dll nuttxmsys2/msys-z.dll
+          zip -r nuttxmsys2.zip nuttxmsys2
+          
+      - name: Get Current Date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Publish the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: master-sim-nsh-${{ steps.date.outputs.date }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          files: |
+            nuttxspace/nuttx/nuttxmsys2.zip
+          
