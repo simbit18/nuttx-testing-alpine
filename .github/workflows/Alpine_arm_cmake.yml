@@ -159,7 +159,7 @@ jobs:
         ## Configure the build
         cmake -B build_sim -DBOARD_CONFIG=stm32f334-disco:powerled -GNinja
 
-        mkdir nuttxcmake
+        mkdir -p nuttxcmake
         
         ## Preserve the build config
         cp build_sim/.config build_sim/nuttx.config
@@ -168,6 +168,7 @@ jobs:
         cmake --build build_sim
 
         cp build_sim/nuttx nuttxcmake/nuttx
+        cp build_sim/nuttx.config nuttxcmake/nuttx.config
         cp build_sim/nuttx.bin nuttxcmake/nuttx.bin
         cp build_sim/nuttx.hex nuttxcmake/nuttx.hex
         cp build_sim/nuttx.manifest nuttxcmake/nuttx.manifest
