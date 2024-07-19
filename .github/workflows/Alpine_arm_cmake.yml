@@ -165,7 +165,7 @@ jobs:
         ## Run the build
         cmake --build build_sim
 
-        cp build_sim/nuttx.exe nuttxmsys2/nuttx
+        cp build_sim/nuttx nuttxmsys2/nuttx
         cp build_sim/nuttx.bin nuttxmsys2/nuttx.bin
         cp build_sim/nuttx.hex nuttxmsys2/nuttx.hex
         cp build_sim/System.map nuttxmsys2/System.map
