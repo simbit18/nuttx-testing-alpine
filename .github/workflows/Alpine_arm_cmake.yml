@@ -1,6 +1,6 @@
-## Build Mainline NuttX every day for Alpine Action Cmake arm
+## Build NuttX Alpine Action Cmake arm
 
-name: Daily Build of NuttX for Alpine Cmake ARM
+name: NuttX for Alpine Cmake ARM
 
 permissions:
   ## Allow publishing of GitHub Release
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - '.github/workflows/Alpine_Cmake_nsh.yml'
+      - '.github/workflows/Alpine_arm_cmake.yml'
 
 jobs:
   # Label of the container job
