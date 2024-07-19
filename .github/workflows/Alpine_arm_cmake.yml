@@ -172,7 +172,8 @@ jobs:
         cp build_sim/nuttx.bin nuttxcmake/nuttx.bin
         cp build_sim/nuttx.hex nuttxcmake/nuttx.hex
         cp build_sim/nuttx.manifest nuttxcmake/nuttx.manifest
-        zip -r nuttxcmake.zip nuttxcmake
+        # zip -r nuttxcmake.zip nuttxcmake
+        tar -czvf nuttxcmake.tar.gz nuttxcmake
 
     - name: Get Current Date
       id: date
@@ -186,4 +187,4 @@ jobs:
         prerelease: false
         generate_release_notes: false
         files: |
-          nuttxspace/nuttx/nuttxcmake.zip
+          nuttxspace/nuttx/nuttxcmake.tar.gz
