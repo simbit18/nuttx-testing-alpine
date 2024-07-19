@@ -165,6 +165,13 @@ jobs:
         ## Run the build
         cmake --build build_sim
 
+        cp build_sim/nuttx.exe nuttxmsys2/nuttx
+        cp build_sim/nuttx.bin nuttxmsys2/nuttx.bin
+        cp build_sim/nuttx.hex nuttxmsys2/nuttx.hex
+        cp build_sim/System.map nuttxmsys2/System.map
+        cp build_sim/nuttx.manifest nuttxmsys2/nuttx.manifest
+        zip -r nuttxmsys2.zip nuttxmsys2
+
     - name: Get Current Date
       id: date
       run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
@@ -177,8 +184,4 @@ jobs:
         prerelease: false
         generate_release_notes: false
         files: |
-          nuttxspace/nuttx/build_sim/nuttx
-          nuttxspace/nuttx/build_sim/nuttx.bin
-          nuttxspace/nuttx/build_sim/nuttx.hex
-          nuttxspace/nuttx/build_sim/nuttx.config
-          nuttxspace/nuttx/build_sim/nuttx.manifest
+          nuttxspace/nuttx/nuttxmsys2.zip
