@@ -82,8 +82,8 @@ jobs:
           mkdir nuttxspace
           ls -a
           cd nuttxspace
-          git clone --depth 1 --single-branch --branch simbit18-cmake https://github.com/apache/incubator-nuttx nuttx
-          git clone --depth 1 --single-branch --branch simbit18-cmake https://github.com/apache/incubator-nuttx-apps apps
+          git clone --depth 1 --single-branch --branch simbit18-cmake https://github.com/simbit18/nuttx nuttx
+          git clone --depth 1 --single-branch --branch simbit18-cmake https://github.com/simbit18/nuttx-apps apps
           ls -a
           cd nuttx
           ls -a
